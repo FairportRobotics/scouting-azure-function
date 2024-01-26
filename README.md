@@ -1,0 +1,1 @@
+# Scouting App Azure Function
