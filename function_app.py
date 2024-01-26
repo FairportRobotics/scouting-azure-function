@@ -37,7 +37,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                     match_data[key + "_" + sub_key] = sub_value
             else:
                 match_data[key] = value
-
+        '''
         # Save the data locally
         logging.info('Saving locally.')
         local_file_name = "crescendo.csv"
@@ -55,6 +55,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
 
         # Indicate our successful save
         return func.HttpResponse(f"Data synced to the cloud!")
+        '''
+        return func.HttpResponse(f"{match_data}")
     else:
         # Return a "helpful" message
         return func.HttpResponse("Bummer!  No data sent to this endpoint.", status_code=200)
