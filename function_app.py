@@ -2,7 +2,7 @@ import azure.functions as func
 from azure.storage.blob import BlobServiceClient
 import logging
 import json
-import csv
+import pandas as pd
 
 logging.info('Connecting to blob storage.')
 # TODO: Store the connection_string in a more secure location than the source code
@@ -40,11 +40,15 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         
         # Save the data locally
         logging.info('Saving locally.')
+        df = pd.DataFrame([match_data])
+        df.to_csv("crescendo.csv")
+        '''
         local_file_name = "crescendo.csv"
         with open(local_file_name, "w", newline='') as f:
             w = csv.writer(f)
             w.writerow(match_data.keys())
             w.writerow(match_data.values())
+        '''
         '''
         # Transfer the local file to blob storage
         logging.info('Saving to blob storage.')
