@@ -37,7 +37,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                     match_data[key + "_" + sub_key] = sub_value
             else:
                 match_data[key] = value
-        '''
+        
         # Save the data locally
         logging.info('Saving locally.')
         local_file_name = "crescendo.csv"
@@ -45,7 +45,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
             w = csv.writer(f)
             w.writerow(match_data.keys())
             w.writerow(match_data.values())
-
+        '''
         # Transfer the local file to blob storage
         logging.info('Saving to blob storage.')
         # Create a blob client using the local file name as the name for the blob
