@@ -50,7 +50,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
             w.writerow(match_data.keys())
             w.writerow(match_data.values())
         '''
-        '''
+        
         # Transfer the local file to blob storage
         logging.info('Saving to blob storage.')
         # Create a blob client using the local file name as the name for the blob
@@ -60,8 +60,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
 
         # Indicate our successful save
         return func.HttpResponse(f"Data synced to the cloud!")
-        '''
-        return func.HttpResponse(f"{match_data}")
+        
+        #return func.HttpResponse(f"{match_data}")
     else:
         # Return a "helpful" message
         return func.HttpResponse("Bummer!  No data sent to this endpoint.", status_code=200)
