@@ -2,8 +2,10 @@ import azure.functions as func
 from azure.storage.blob import BlobServiceClient
 import logging
 import json
+import csv
 
 logging.info('Connecting to blob storage.')
+# TODO: Store the connection_string in a more secure location than the source code
 connection_string = "DefaultEndpointsProtocol=https;AccountName=scoutingdatadev;AccountKey=2TDRHB8enPBg98Gp34n3gXEaC1K2SKsNeZDDb1zv5rRCHTum9GHlIc17bkFHL/hi9TU4rHF9k6mR+AStW7b+fw==;EndpointSuffix=core.windows.net"
 blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
 container_name = "crescendo"
@@ -35,10 +37,24 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                     match_data[key + "_" + sub_key] = sub_value
             else:
                 match_data[key] = value
-    
-        # TODO: Save data to crescendo.csv
 
-        return func.HttpResponse(f"{match_data}")
+        # Save the data locally
+        logging.info('Saving locally.')
+        local_file_name = "crescendo.csv"
+        with open(local_file_name, "w", newline='') as f:
+            w = csv.writer(f)
+            w.writerow(match_data.keys())
+            w.writerow(match_data.values())
+
+        # Transfer the local file to blob storage
+        logging.info('Saving to blob storage.')
+        # Create a blob client using the local file name as the name for the blob
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=local_file_name)
+        with open(file=local_file_name, mode="rb") as blob_data:
+            blob_client.upload_blob(blob_data)
+
+        # Indicate our successful save
+        return func.HttpResponse(f"Data synced to the cloud!")
     else:
         # Return a "helpful" message
         return func.HttpResponse("Bummer!  No data sent to this endpoint.", status_code=200)
