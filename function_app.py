@@ -1,5 +1,11 @@
 import azure.functions as func
+from azure.storage.blob import BlobServiceClient
 import logging
+
+logging.info('Connecting to blob storage.')
+connection_string = "DefaultEndpointsProtocol=https;AccountName=scoutingdatadev;AccountKey=2TDRHB8enPBg98Gp34n3gXEaC1K2SKsNeZDDb1zv5rRCHTum9GHlIc17bkFHL/hi9TU4rHF9k6mR+AStW7b+fw==;EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
+container_name = "crescendo"
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
