@@ -41,7 +41,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         # Save the data locally
         logging.info('Saving locally.')
         df = pd.DataFrame([match_data])
-        df.to_csv("crescendo.csv")
+        local_file_name = "/tmp/crescendo.csv"
+        df.to_csv(local_file_name)
         '''
         local_file_name = "crescendo.csv"
         with open(local_file_name, "w", newline='') as f:
