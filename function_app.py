@@ -43,13 +43,6 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         df = pd.DataFrame([match_data])
         local_file_name = "/tmp/crescendo.csv"
         df.to_csv(local_file_name)
-        '''
-        local_file_name = "crescendo.csv"
-        with open(local_file_name, "w", newline='') as f:
-            w = csv.writer(f)
-            w.writerow(match_data.keys())
-            w.writerow(match_data.values())
-        '''
         
         # Transfer the local file to blob storage
         logging.info('Saving to blob storage.')
@@ -60,8 +53,6 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
 
         # Indicate our successful save
         return func.HttpResponse(f"Data synced to the cloud!")
-        
-        #return func.HttpResponse(f"{match_data}")
     else:
         # Return a "helpful" message
         return func.HttpResponse("Bummer!  No data sent to this endpoint.", status_code=200)
