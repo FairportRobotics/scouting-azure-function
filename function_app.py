@@ -41,14 +41,15 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         # Save the data locally
         logging.info('Saving locally.')
         df = pd.DataFrame([match_data])
-        local_file_name = "/tmp/crescendo.csv"
+        file_name = "crescendo.csv"
+        local_file_name = "/tmp/" + file_name
         df.to_csv(local_file_name)
         
         # Transfer the local file to blob storage
         logging.info('Saving to blob storage.')
         # Create a blob client using the local file name as the name for the blob
-        blob_client = blob_service_client.get_blob_client(container=container_name, blob=local_file_name)
-        with open(file=local_file_name, mode="rb") as blob_data:
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=file_name)
+        with open(file=file_name, mode="rb") as blob_data:
             blob_client.upload_blob(blob_data)
 
         # Indicate our successful save
