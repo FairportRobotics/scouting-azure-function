@@ -41,8 +41,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                 match_data[key] = value
 
         # Save data to cosmos
-        credential = DefaultAzureCredential()
-        client = CosmosClient(url="https://scouting-dev-cosmos.documents.azure.com:443/", credential=credential)
+        client = CosmosClient.from_connection_string("AccountEndpoint=https://scouting-dev-cosmos.documents.azure.com:443/;AccountKey=leurpDMK1VHPyyeHZbQICgECLUst7npbBqpDzwcI2nZxMLZ3jtcnl4rurKxQ3JuDNXf0HBYNvNmxACDbRBUngQ==")
         database = client.get_database_client("crescendo")
         container = database.get_container_client("match")
         created_item = container.upsert_item(match_data)
