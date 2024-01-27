@@ -44,7 +44,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         client = CosmosClient.from_connection_string("AccountEndpoint=https://scouting-dev-cosmos.documents.azure.com:443/;AccountKey=leurpDMK1VHPyyeHZbQICgECLUst7npbBqpDzwcI2nZxMLZ3jtcnl4rurKxQ3JuDNXf0HBYNvNmxACDbRBUngQ==")
         database = client.get_database_client("crescendo")
         container = database.get_container_client("match")
-        created_item = container.upsert_item(match_data)
+        created_item = container.upsert_item(str(json.dumps(match_data)))
 
         # Read in the existing data
         container_client = blob_service_client.get_container_client(container= container_name) 
