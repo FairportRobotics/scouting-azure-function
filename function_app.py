@@ -47,7 +47,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         # Transfer the local file to blob storage
         logging.info('Saving to blob storage.')
         # Create a blob client using the local file name as the name for the blob
-        blob_client = blob_service_client.get_blob_client(container=container_name, blob=local_file_name)
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob="crescendo.csv")
         with open(file=local_file_name, mode="rb") as blob_data:
             blob_client.upload_blob(blob_data)
 
