@@ -56,12 +56,12 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         blob_client = blob_service_client.get_blob_client(container=container_name, blob="crescendo.csv")
         with open(file=local_file_name, mode="rb") as blob_data:
             blob_client.upload_blob(blob_data)
-        '''  
+        
         # Save the raw JSON to blob storage
-        blob_client = blob_service_client.get_blob_client(container=container_name, blob=raw_path.replace("tmp", "raw"))
+        blob_client = blob_service_client.get_blob_client(container="raw", blob=match_data["key"]+".json")
         with open(file=raw_path, mode="rb") as blob_data:
             blob_client.upload_blob(blob_data)
-        '''
+        
         # Indicate our successful save
         return func.HttpResponse(f"Data synced to the cloud!")
     else:
