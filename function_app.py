@@ -3,8 +3,6 @@ from azure.storage.blob import BlobServiceClient
 import logging
 import json
 import pandas as pd
-from azure.cosmos import CosmosClient
-from azure.identity import DefaultAzureCredential
 
 logging.info('Connecting to blob storage.')
 # TODO: Store the connection_string in a more secure location than the source code
@@ -40,12 +38,6 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
             else:
                 match_data[key] = value
 
-        # Save data to cosmos
-        client = CosmosClient.from_connection_string("AccountEndpoint=https://scouting-dev-cosmos.documents.azure.com:443/;AccountKey=leurpDMK1VHPyyeHZbQICgECLUst7npbBqpDzwcI2nZxMLZ3jtcnl4rurKxQ3JuDNXf0HBYNvNmxACDbRBUngQ==")
-        database = client.get_database_client("crescendo")
-        container = database.get_container_client("match")
-        created_item = container.upsert_item(json.dumps(match_data))
-        
         # Read in the existing data
         container_client = blob_service_client.get_container_client(container= container_name) 
         with open(file="/tmp/existing.csv", mode="wb") as download_file:
