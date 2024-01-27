@@ -38,6 +38,12 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
             else:
                 match_data[key] = value
         
+        # Save the raw JSON data
+        logging.info('Saving raw data locally.')
+        raw_path = "/tmp/" + match_data["key"]+".json"
+        with open(raw_path, "w") as f:
+            f.write(data)
+
         # Save the data locally
         logging.info('Saving locally.')
         df = pd.DataFrame([match_data])
@@ -49,6 +55,11 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         # Create a blob client using the local file name as the name for the blob
         blob_client = blob_service_client.get_blob_client(container=container_name, blob="crescendo.csv")
         with open(file=local_file_name, mode="rb") as blob_data:
+            blob_client.upload_blob(blob_data)
+            
+        # Save the raw JSON to blob storage
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=raw_path.replace("tmp", "raw"))
+        with open(file=raw_path, mode="rb") as blob_data:
             blob_client.upload_blob(blob_data)
 
         # Indicate our successful save
