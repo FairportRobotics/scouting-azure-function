@@ -48,7 +48,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         logging.info('Saving locally.')
         df = pd.DataFrame([match_data])
         local_file_name = "/tmp/crescendo.csv"
-        df.to_csv(local_file_name)
+        df.to_csv(local_file_name, index=False)
         
         # Transfer the local file to blob storage
         logging.info('Saving to blob storage.')
