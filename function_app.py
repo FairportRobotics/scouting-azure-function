@@ -7,10 +7,8 @@ from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 
 logging.info('Connecting to blob storage.')
-# TODO: Store the connection_string in a more secure location than the source code
-#client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
-#connection_string = client.get_secret("blob-storage-connection-string")
-connection_string = "DefaultEndpointsProtocol=https;AccountName=scoutingdatadev;AccountKey=2TDRHB8enPBg98Gp34n3gXEaC1K2SKsNeZDDb1zv5rRCHTum9GHlIc17bkFHL/hi9TU4rHF9k6mR+AStW7b+fw==;EndpointSuffix=core.windows.net"
+client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
+connection_string = client.get_secret("blob-storage-connection-string")
 blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
 container_name = "crescendo"
 
