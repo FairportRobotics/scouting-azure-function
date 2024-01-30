@@ -40,7 +40,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
         container_name = "crescendo"
 
-        '''
+        
         # Read in the existing data
         container_client = blob_service_client.get_container_client(container= container_name) 
         with open(file="/tmp/existing.csv", mode="wb") as download_file:
@@ -73,7 +73,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         blob_client = blob_service_client.get_blob_client(container="raw", blob=match_data["key"]+".json")
         with open(file=raw_path, mode="rb") as blob_data:
             blob_client.upload_blob(blob_data, overwrite=True)
-        '''
+        
         # Indicate our successful save
         return func.HttpResponse(f"Data synced to the cloud!")
     else:
