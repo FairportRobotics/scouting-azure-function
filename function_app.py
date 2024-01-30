@@ -3,9 +3,9 @@ from azure.storage.blob import BlobServiceClient
 import logging
 import json
 import pandas as pd
-#from azure.keyvault.secrets import SecretClient
-#from azure.identity import DefaultAzureCredential
-import os
+from azure.keyvault.secrets import SecretClient
+from azure.identity import DefaultAzureCredential
+#import os
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
@@ -36,13 +36,13 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                 match_data[key] = value
         
         logging.info('Connecting to key vault.')
-        #client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
-        #connection_string = client.get_secret("blob-storage-connection-string")
-        connection_string = os.environ["BLOB_STORAGE_CONNECTION_STRING"]
+        client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
+        connection_string = client.get_secret("BLOB-STORAGE-CONNECTION-STRING")
+        #connection_string = os.environ["BLOB_STORAGE_CONNECTION_STRING"]
         logging.info('Connecting to blob storage.')
         blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
         container_name = "crescendo"
-
+        '''
         logging.info('Read existing data.')
         # Read in the existing data
         container_client = blob_service_client.get_container_client(container=container_name) 
@@ -51,7 +51,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         existing_df = pd.read_csv("/tmp/existing.csv")
         # Drop any existing data with the same key
         existing_df = existing_df[existing_df["key"] != match_data["key"]]
-        '''
+    
         # Save the raw JSON data
         logging.info('Saving raw data locally.')
         raw_path = "/tmp/" + match_data["key"]+".json"
