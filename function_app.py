@@ -34,15 +34,14 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
             else:
                 match_data[key] = value
         
-        logging.info('Connecting to blob storage.')
+        logging.info('Connecting to key vault.')
         client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
         connection_string = client.get_secret("blob-storage-connection-string")
-        logging.info(str(connection_string))
-        '''
+        logging.info('Connecting to blob storage.')
         blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
         container_name = "crescendo"
 
-        
+        '''
         # Read in the existing data
         container_client = blob_service_client.get_container_client(container=container_name) 
         with open(file="/tmp/existing.csv", mode="wb") as download_file:
