@@ -48,7 +48,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         existing_df = pd.read_csv("/tmp/existing.csv")
         # Drop any existing data with the same key
         existing_df = existing_df[existing_df["key"] != match_data["key"]]
-        
+        '''
         # Save the raw JSON data
         logging.info('Saving raw data locally.')
         raw_path = "/tmp/" + match_data["key"]+".json"
@@ -73,7 +73,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         blob_client = blob_service_client.get_blob_client(container="raw", blob=match_data["key"]+".json")
         with open(file=raw_path, mode="rb") as blob_data:
             blob_client.upload_blob(blob_data, overwrite=True)
-        
+        '''
         # Indicate our successful save
         return func.HttpResponse(f"Data synced to the cloud!")
     else:
