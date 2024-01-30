@@ -41,7 +41,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
         container_name = "crescendo"
 
-        '''
+        logging.info('Read existing data.')
         # Read in the existing data
         container_client = blob_service_client.get_container_client(container=container_name) 
         with open(file="/tmp/existing.csv", mode="wb") as download_file:
@@ -49,7 +49,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         existing_df = pd.read_csv("/tmp/existing.csv")
         # Drop any existing data with the same key
         existing_df = existing_df[existing_df["key"] != match_data["key"]]
-        
+        '''
         # Save the raw JSON data
         logging.info('Saving raw data locally.')
         raw_path = "/tmp/" + match_data["key"]+".json"
