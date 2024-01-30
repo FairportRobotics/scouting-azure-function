@@ -6,14 +6,6 @@ import pandas as pd
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 
-
-logging.info('Connecting to blob storage.')
-credential = DefaultAzureCredential()
-client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
-#connection_string = client.get_secret("blob-storage-connection-string")
-#blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
-container_name = "crescendo"
-
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
 @app.route(route="v1")
@@ -41,6 +33,14 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                     match_data[key + "_" + sub_key] = sub_value
             else:
                 match_data[key] = value
+        
+        logging.info('Connecting to blob storage.')
+        credential = DefaultAzureCredential()
+        client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
+        connection_string = client.get_secret("blob-storage-connection-string")
+        #blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
+        container_name = "crescendo"
+
         '''
         # Read in the existing data
         container_client = blob_service_client.get_container_client(container= container_name) 
