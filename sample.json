@@ -1,0 +1,44 @@
+{
+    "key": "2023nyrr__2023nyrr_qm1__Blue__1",
+    "eventKey": "2023nyrr",
+    "matchKey": "2023nyrr_qm1",
+    "matchNumber": 1,
+    "scoutName": "John Doe",
+    "alliance": {
+      "name": "Blue|Red",
+      "number": 1,
+      "scheduledTeamKey": "frc2228",
+      "scoutedTeamKey": "frc5740"
+    },
+    "auto": {
+      "beganWithNote": true,
+      "leftStartArea": true,
+      "speakerScore": 1,
+      "speakerMiss": 2,
+      "ampScore": 3,
+      "ampMiss": 4
+    },
+    "teleop": {
+      "speakerScore": 5,
+      "speakerScoreAmplified": 6,
+      "speakerMiss": 7,
+      "ampScore": 8,
+      "ampMiss": 9,
+      "ampCooperition": true,
+      "passes": 10
+    },
+    "endgame": {
+      "trapScore": 11,
+      "microphoneScore": 12,
+      "harmonyScore": 0,
+      "didHang": true
+    },
+    "final": {
+      "rankingPoints": 13,
+      "totalScore": 14,
+      "result": "win|lose|tie",
+      "violation": "yellow-card|red-card|disabled|disqualified",
+      "penalties": 15,
+      "notes": "The Alliance started dancing."
+    }
+  }
