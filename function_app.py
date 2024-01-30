@@ -35,10 +35,9 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                 match_data[key] = value
         
         logging.info('Connecting to blob storage.')
-        credential = DefaultAzureCredential()
         client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
         connection_string = client.get_secret("blob-storage-connection-string")
-        #blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
+        blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
         container_name = "crescendo"
 
         '''
