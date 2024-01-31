@@ -3,6 +3,7 @@ from azure.storage.blob import BlobServiceClient
 import logging
 import json
 import pandas as pd
+from azure.cosmos import CosmosClient
 #from azure.keyvault.secrets import SecretClient
 #from azure.identity import DefaultAzureCredential
 import os
@@ -54,14 +55,17 @@ def handle_match_data(data):
         else:
             match_data[key] = value
     
+    logging.info('Connecting to Cosmos db.')
+    cosmos_client = CosmosClient(os.environ["COSMOS_CONNECTION_STRING"])
+
     logging.info('Connecting to blob storage.')
-    connection_string = os.environ["BLOB_STORAGE_CONNECTION_STRING"]
-    blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
+    blob_connection_string = os.environ["BLOB_STORAGE_CONNECTION_STRING"]
+    blob_service_client = BlobServiceClient.from_connection_string(conn_str=blob_connection_string)
     container_name = "crescendo"
     
     # Read in the existing data
     logging.info('Read existing data.')
-    container_client = blob_service_client.get_container_client(container= container_name) 
+    container_client = blob_service_client.get_container_client(container=container_name) 
     with open(file="/tmp/existing.csv", mode="wb") as download_file:
         download_file.write(container_client.download_blob("crescendo.csv").readall())
     existing_df = pd.read_csv("/tmp/existing.csv")
