@@ -37,7 +37,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     
     if data_type == "match":
         message = handle_match_data(data)
-    func.HttpResponse(message)
+    return func.HttpResponse(message)
 
 
 def handle_match_data(data):
