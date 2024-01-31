@@ -8,19 +8,23 @@ import json
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
-@app.route(route="v1")
-def v1(req: func.HttpRequest) -> func.HttpResponse:
-    
-    logging.info('Parsing data.')
-    # Read in the data
-    data = req.params.get('data')
+def _get(req, key):
+    data = req.params.get(key)
     if not data:
         try:
             req_body = req.get_json()
         except ValueError:
             pass
         else:
-            data = req_body.get('data')
+            data = req_body.get(key)
+    return data
+
+@app.route(route="v1")
+def v1(req: func.HttpRequest) -> func.HttpResponse:
+    
+    logging.info('Parsing data.')
+    # Read in the data
+    data = _get(req, 'data')
 
     if data:
         # Read the JSON data
@@ -49,13 +53,13 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         existing_df = pd.read_csv("/tmp/existing.csv")
         # Drop any existing data with the same key
         existing_df = existing_df[existing_df["key"] != match_data["key"]]
-        
+        '''
         # Save the raw JSON data
         logging.info('Saving raw data locally.')
         raw_path = "/tmp/" + match_data["key"]+".json"
         with open(raw_path, "w") as f:
             f.write(data)
-
+        '''
         # Save the data locally
         logging.info('Saving locally.')
         df = pd.DataFrame([match_data])
