@@ -4,6 +4,6 @@
 
 azure-functions
 azure-storage-blob
-pandas
-azure-keyvault-secrets 
-azure-identity
+#pandas
+#azure-keyvault-secrets 
+#azure-identity
