@@ -5,6 +5,7 @@ import json
 import pandas as pd
 #from azure.keyvault.secrets import SecretClient
 #from azure.identity import DefaultAzureCredential
+import os
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
@@ -52,6 +53,9 @@ def handle_match_data(data):
                 match_data[key + "_" + sub_key] = sub_value
         else:
             match_data[key] = value
+    
+    connection_string = os.environ["BLOB_STORAGE_CONNECTION_STRING"]
+    logging.info(connection_string)
     
     logging.info('Connecting to blob storage.')
     #client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
