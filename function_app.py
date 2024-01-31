@@ -96,11 +96,14 @@ def handle_match_data(data):
         blob_client.upload_blob(blob_data, overwrite=True)
     
     # Save to Cosmos db
-    logging.info('Connecting to Cosmos db.')
+    logging.info('Insert into Cosmos db.')
     cosmos_client = CosmosClient(os.environ["COSMOS_URI"], credential=os.environ["COSMOS_KEY"])
     cosmos_database = cosmos_client.get_database_client(database=container_name)
     container = cosmos_database.get_container_client("match")
-    #container.upsert_item()
+    # Add an id to the dictionary
+    match_data["id"] = match_data["key"]
+    # Insert into cosmos
+    container.upsert_item(match_data)
 
     # Indicate our successful save
     return "Data synced to the cloud!"
