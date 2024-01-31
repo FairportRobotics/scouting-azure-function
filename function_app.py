@@ -54,23 +54,20 @@ def handle_match_data(data):
         else:
             match_data[key] = value
     
-    connection_string = os.environ["BLOB_STORAGE_CONNECTION_STRING"]
-    logging.info(connection_string)
-    
     logging.info('Connecting to blob storage.')
-    #client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
-    #connection_string = client.get_secret("blob-storage-connection-string")
-    #blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
+    connection_string = os.environ["BLOB_STORAGE_CONNECTION_STRING"]
+    blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
     container_name = "crescendo"
-    '''
+    
     # Read in the existing data
+    logging.info('Read existing data.')
     container_client = blob_service_client.get_container_client(container= container_name) 
     with open(file="/tmp/existing.csv", mode="wb") as download_file:
         download_file.write(container_client.download_blob("crescendo.csv").readall())
     existing_df = pd.read_csv("/tmp/existing.csv")
     # Drop any existing data with the same key
     existing_df = existing_df[existing_df["key"] != match_data["key"]]
-    '''
+    
     # Save the raw JSON data
     logging.info('Saving raw data locally.')
     raw_path = "/tmp/" + match_data["key"]+".json"
