@@ -1,10 +1,10 @@
 import azure.functions as func
-#from azure.storage.blob import BlobServiceClient
+from azure.storage.blob import BlobServiceClient
 import logging
 import json
-#import pandas as pd
-from azure.keyvault.secrets import SecretClient
-from azure.identity import DefaultAzureCredential
+import pandas as pd
+#from azure.keyvault.secrets import SecretClient
+#from azure.identity import DefaultAzureCredential
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
@@ -54,8 +54,8 @@ def handle_match_data(data):
             match_data[key] = value
     
     logging.info('Connecting to blob storage.')
-    client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
-    connection_string = client.get_secret("blob-storage-connection-string")
+    #client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
+    #connection_string = client.get_secret("blob-storage-connection-string")
     #blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
     container_name = "crescendo"
     '''
