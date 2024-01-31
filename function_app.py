@@ -1,15 +1,16 @@
 import azure.functions as func
-from azure.storage.blob import BlobServiceClient
+#from azure.storage.blob import BlobServiceClient
 import logging
-import json
-import pandas as pd
-from azure.keyvault.secrets import SecretClient
-from azure.identity import DefaultAzureCredential
+#import json
+#import pandas as pd
+#from azure.keyvault.secrets import SecretClient
+#from azure.identity import DefaultAzureCredential
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
 @app.route(route="v1")
 def v1(req: func.HttpRequest) -> func.HttpResponse:
+    
     logging.info('Parsing data.')
     # Read in the data
     data = req.params.get('data')
@@ -23,6 +24,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
 
     if data:
         # Read the JSON data
+        '''
         j = json.loads(data)
         # Flatten the JSON data
         logging.info('Flattening JSON data.')
@@ -33,7 +35,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                     match_data[key + "_" + sub_key] = sub_value
             else:
                 match_data[key] = value
-        '''
+        
         logging.info('Connecting to blob storage.')
         credential = DefaultAzureCredential()
         client = SecretClient(vault_url="https://scouting-vault.vault.azure.net/", credential=DefaultAzureCredential())
