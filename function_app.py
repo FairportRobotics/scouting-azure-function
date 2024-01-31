@@ -3,8 +3,7 @@ from azure.storage.blob import BlobServiceClient
 import logging
 import json
 import pandas as pd
-#from azure.keyvault.secrets import SecretClient
-#from azure.identity import DefaultAzureCredential
+from azure.cosmos import CosmosClient
 import os
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
@@ -23,7 +22,9 @@ def _get(req, key):
 
 @app.route(route="v1")
 def v1(req: func.HttpRequest) -> func.HttpResponse:
-    
+    # Assumes the containers have been created
+    container_name = "crescendo"
+
     logging.info('Parsing data.')
     # Read in the data
     data = _get(req, 'data')
@@ -37,11 +38,11 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse("Bummer!  No type sent to this endpoint.", status_code=200)
     
     if data_type == "match":
-        message = handle_match_data(data)
+        message = handle_match_data(data, container_name)
     return func.HttpResponse(message)
 
 
-def handle_match_data(data):
+def handle_match_data(data, container_name):
     # Read the JSON data
     j = json.loads(data)
     # Flatten the JSON data
@@ -53,17 +54,16 @@ def handle_match_data(data):
                 match_data[key + "_" + sub_key] = sub_value
         else:
             match_data[key] = value
-    
+
     logging.info('Connecting to blob storage.')
-    connection_string = os.environ["BLOB_STORAGE_CONNECTION_STRING"]
-    blob_service_client = BlobServiceClient.from_connection_string(conn_str=connection_string)
-    container_name = "crescendo"
+    blob_connection_string = os.environ["BLOB_STORAGE_CONNECTION_STRING"]
+    blob_service_client = BlobServiceClient.from_connection_string(conn_str=blob_connection_string)
     
     # Read in the existing data
     logging.info('Read existing data.')
-    container_client = blob_service_client.get_container_client(container= container_name) 
+    container_client = blob_service_client.get_container_client(container=container_name) 
     with open(file="/tmp/existing.csv", mode="wb") as download_file:
-        download_file.write(container_client.download_blob("crescendo.csv").readall())
+        download_file.write(container_client.download_blob(f"{container_name}.csv").readall())
     existing_df = pd.read_csv("/tmp/existing.csv")
     # Drop any existing data with the same key
     existing_df = existing_df[existing_df["key"] != match_data["key"]]
@@ -93,6 +93,16 @@ def handle_match_data(data):
     with open(file=raw_path, mode="rb") as blob_data:
         blob_client.upload_blob(blob_data, overwrite=True)
     
+    # Save to Cosmos db
+    logging.info('Insert into Cosmos db.')
+    cosmos_client = CosmosClient(os.environ["COSMOS_URI"], credential=os.environ["COSMOS_KEY"])
+    cosmos_database = cosmos_client.get_database_client(database=container_name)
+    container = cosmos_database.get_container_client("match")
+    # Add an id to the dictionary
+    match_data["id"] = match_data["key"]
+    # Insert into cosmos
+    container.upsert_item(match_data)
+
     # Indicate our successful save
     return "Data synced to the cloud!"
-        
+  
