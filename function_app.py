@@ -55,13 +55,11 @@ def handle_match_data(data):
         else:
             match_data[key] = value
     
-    logging.info('Connecting to Cosmos db.')
-    cosmos_client = CosmosClient(os.environ["COSMOS_URI"], credential=os.environ["COSMOS_KEY"])
+    container_name = "crescendo"
 
     logging.info('Connecting to blob storage.')
     blob_connection_string = os.environ["BLOB_STORAGE_CONNECTION_STRING"]
     blob_service_client = BlobServiceClient.from_connection_string(conn_str=blob_connection_string)
-    container_name = "crescendo"
     
     # Read in the existing data
     logging.info('Read existing data.')
@@ -97,6 +95,13 @@ def handle_match_data(data):
     with open(file=raw_path, mode="rb") as blob_data:
         blob_client.upload_blob(blob_data, overwrite=True)
     
+    # Save to Cosmos db
+    logging.info('Connecting to Cosmos db.')
+    cosmos_client = CosmosClient(os.environ["COSMOS_URI"], credential=os.environ["COSMOS_KEY"])
+    cosmos_database = cosmos_client.get_database_client(database=container_name)
+    container = cosmos_database.get_container_client("match")
+    #container.upsert_item()
+
     # Indicate our successful save
     return "Data synced to the cloud!"
         
