@@ -19,25 +19,39 @@ def _get(req, key):
             data = req_body.get(key)
     return data
 
+
 @app.route(route="v1")
 def v1(req: func.HttpRequest) -> func.HttpResponse:
     
     logging.info('Parsing data.')
     # Read in the data
     data = _get(req, 'data')
+    data_type = _get(req, 'type')
 
-    if data:
-        # Read the JSON data
-        j = json.loads(data)
-        # Flatten the JSON data
-        logging.info('Flattening JSON data.')
-        match_data = {}
-        for key,value in j.items():
-            if isinstance(value, dict):
-                for sub_key, sub_value in value.items():
-                    match_data[key + "_" + sub_key] = sub_value
-            else:
-                match_data[key] = value
+    if not data:
+        # Return a "helpful" message
+        return func.HttpResponse("Bummer!  No data sent to this endpoint.", status_code=200)
+    if not data_type:
+        # Return a "helpful" message
+        return func.HttpResponse("Bummer!  No type sent to this endpoint.", status_code=200)
+    
+    if data_type == "match":
+        message = handle_match_data(data)
+    func.HttpResponse(message)
+
+
+def handle_match_data(data):
+    # Read the JSON data
+    j = json.loads(data)
+    # Flatten the JSON data
+    logging.info('Flattening JSON data.')
+    match_data = {}
+    for key,value in j.items():
+        if isinstance(value, dict):
+            for sub_key, sub_value in value.items():
+                match_data[key + "_" + sub_key] = sub_value
+        else:
+            match_data[key] = value
         '''
         logging.info('Connecting to blob storage.')
         credential = DefaultAzureCredential()
@@ -80,7 +94,5 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
             blob_client.upload_blob(blob_data, overwrite=True)
         '''
         # Indicate our successful save
-        return func.HttpResponse(f"Data synced to the cloud!")
-    else:
-        # Return a "helpful" message
-        return func.HttpResponse("Bummer!  No data sent to this endpoint.", status_code=200)
+        return "Data synced to the cloud!"
+        
