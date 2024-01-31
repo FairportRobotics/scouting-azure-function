@@ -56,7 +56,7 @@ def handle_match_data(data):
             match_data[key] = value
     
     logging.info('Connecting to Cosmos db.')
-    cosmos_client = CosmosClient(os.environ["COSMOS_CONNECTION_STRING"])
+    cosmos_client = CosmosClient(os.environ["COSMOS_URI"], credential=os.environ["COSMOS_KEY"])
 
     logging.info('Connecting to blob storage.')
     blob_connection_string = os.environ["BLOB_STORAGE_CONNECTION_STRING"]
