@@ -73,18 +73,18 @@ def handle_match_data(data):
     raw_path = "/tmp/" + match_data["key"]+".json"
     with open(raw_path, "w") as f:
         f.write(data)
-    '''
+    
     # Save the data locally
     logging.info('Saving locally.')
     df = pd.DataFrame([match_data])
     df = pd.concat([existing_df, df])
-    local_file_name = "/tmp/crescendo.csv"
+    local_file_name = f"/tmp/{container_name}.csv"
     df.to_csv(local_file_name, index=False)
         
     # Transfer the local file to blob storage
     logging.info('Saving to blob storage.')
     # Create a blob client using the local file name as the name for the blob
-    blob_client = blob_service_client.get_blob_client(container=container_name, blob="crescendo.csv")
+    blob_client = blob_service_client.get_blob_client(container=container_name, blob=f"{container_name}.csv")
     with open(file=local_file_name, mode="rb") as blob_data:
         blob_client.upload_blob(blob_data, overwrite=True)
         
@@ -92,7 +92,7 @@ def handle_match_data(data):
     blob_client = blob_service_client.get_blob_client(container="raw", blob=match_data["key"]+".json")
     with open(file=raw_path, mode="rb") as blob_data:
         blob_client.upload_blob(blob_data, overwrite=True)
-    '''
+    
     # Indicate our successful save
     return "Data synced to the cloud!"
         
