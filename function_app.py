@@ -37,9 +37,9 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         # Return a "helpful" message
         return func.HttpResponse("Bummer!  No type sent to this endpoint.", status_code=200)
     
-    if data_type == "match":
+    if data_type.lower() == "match":
         message = handle_match_data(data, container_name)
-    elif data_type == "pit":
+    elif data_type.lower() == "pit":
         message = handle_pit_data(data, container_name)
     else:
         message = "Unknown Data Type"
