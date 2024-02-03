@@ -136,44 +136,6 @@ def handle_match_data(data, container_name):
     return {"message": "Data synced to the cloud!"}
 
 
-def _get(req, key):
-    data = req.params.get(key)
-    if not data:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            data = req_body.get(key)
-    return data
-
-
-@app.route(route="v1")
-def v1(req: func.HttpRequest) -> func.HttpResponse:
-    # Assumes the containers have been created
-    container_name = "crescendo"
-
-    logging.info("Parsing data.")
-    # Read in the data
-    data = _get(req, "data")
-    data_type = _get(req, "type")
-
-    if not data:
-        # Return a "helpful" message
-        return func.HttpResponse(
-            "Bummer!  No data sent to this endpoint.", status_code=200
-        )
-    if not data_type:
-        # Return a "helpful" message
-        return func.HttpResponse(
-            "Bummer!  No type sent to this endpoint.", status_code=200
-        )
-
-    if data_type == "match":
-        message = handle_match_data(data, container_name)
-    return func.HttpResponse(message)
-
-
 def handle_pit_data(data, container_name):
     # Read the JSON data
     pit_data = json.loads(data)
