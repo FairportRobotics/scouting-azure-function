@@ -30,20 +30,22 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     data = _get(req, 'data')
     data_type = _get(req, 'type')
 
-    if not data:
-        # Return a "helpful" message
-        return func.HttpResponse("Bummer!  No data sent to this endpoint.", status_code=200)
     if not data_type:
         # Return a "helpful" message
-        return func.HttpResponse("Bummer!  No type sent to this endpoint.", status_code=200)
+        return func.HttpResponse(json.dumps({"message": "Bummer!  No type sent to this endpoint."}), mimetype="application/json", status_code=200)
+    
+    if data_type in ["match", "pit"]:
+        if not data:
+            # Return a "helpful" message
+            return func.HttpResponse(json.dumps({"message": "Bummer!  No data sent to this endpoint."}), mimetype="application/json", status_code=200)
     
     if data_type.lower() == "match":
-        message = handle_match_data(data, container_name)
+        return_data = handle_match_data(data, container_name)
     elif data_type.lower() == "pit":
-        message = handle_pit_data(data, container_name)
+        return_data = handle_pit_data(data, container_name)
     else:
-        message = "Unknown Data Type"
-    return func.HttpResponse(message)
+        return_data = {"message": "Unknown Data Type"}
+    return func.HttpResponse(json.dumps(return_data), mimetype="application/json", status_code=200)
     
         
 
@@ -110,7 +112,7 @@ def handle_match_data(data, container_name):
     container.upsert_item(match_data)
 
     # Indicate our successful save
-    return "Data synced to the cloud!"
+    return {"message": "Data synced to the cloud!"}
   
 def _get(req, key):
     data = req.params.get(key)
@@ -199,4 +201,4 @@ def handle_pit_data(data, container_name):
     container.upsert_item(pit_data)
 
     # Indicate our successful save
-    return "Data synced to the cloud!"
+    return {"message": "Data synced to the cloud!"}
