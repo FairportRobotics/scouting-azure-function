@@ -198,10 +198,10 @@ def handle_pit_data(data, container_name):
     cosmos_database = cosmos_client.get_database_client(database=container_name)
     container = cosmos_database.get_container_client("pit")
     # Add an id to the dictionary
-    pit_data["id"] = pit_data["teamKey"]
+    pit_data["id"] = pit_data["key"]
     # Insert into cosmos
     container.upsert_item(pit_data)
 
     # Indicate our successful save
     event_data = df[df.eventKey == pit_data["eventKey"]]
-    return {"message": "Data synced to the cloud!", "data_for": event_data["teamKey"].tolist()}
+    return {"message": "Data synced to the cloud!", "data_for": event_data["key"].tolist()}
