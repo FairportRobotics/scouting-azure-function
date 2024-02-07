@@ -148,6 +148,7 @@ def handle_pit_data(data, container_name):
     )
 
     # Read in the existing data
+    '''
     logging.info("Read existing data.")
     container_client = blob_service_client.get_container_client(
         container=container_name
@@ -159,7 +160,7 @@ def handle_pit_data(data, container_name):
     existing_df = pd.read_csv("/tmp/existing.csv")
     # Drop any existing data with the same key
     existing_df = existing_df[existing_df["key"] != pit_data["key"]]
-
+    '''
     # Save the raw JSON data
     logging.info("Saving raw data locally.")
     raw_path = "/tmp/pit_" + pit_data["key"] + ".json"
@@ -169,7 +170,7 @@ def handle_pit_data(data, container_name):
     # Save the data locally
     logging.info("Saving locally.")
     df = pd.DataFrame([pit_data])
-    df = pd.concat([existing_df, df])
+    #df = pd.concat([existing_df, df])
     local_file_name = f"/tmp/{container_name}_pit.csv"
     df.to_csv(local_file_name, index=False)
 
