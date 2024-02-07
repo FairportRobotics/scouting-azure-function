@@ -92,7 +92,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     # Save the raw JSON data
     logging.info("Saving raw JSON data locally.")
     with open(raw_json_path, "w") as f:
-        f.write(data)
+        f.write(json.dumps(data))
 
     # Save the raw JSON to blob storage
     logging.info("Saving the raw JSON to blob storage.")
