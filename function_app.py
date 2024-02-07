@@ -197,7 +197,7 @@ def handle_pit_data(data, container_name):
     cosmos_database = cosmos_client.get_database_client(database=container_name)
     container = cosmos_database.get_container_client("pit")
     # Add an id to the dictionary
-    pit_data["id"] = pit_data["key"]
+    pit_data["id"] = pit_data["teamKey"]
     # Insert into cosmos
     container.upsert_item(pit_data)
 
