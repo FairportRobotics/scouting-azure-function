@@ -202,4 +202,5 @@ def handle_pit_data(data, container_name):
     container.upsert_item(pit_data)
 
     # Indicate our successful save
-    return {"message": "Data synced to the cloud!"}
+    event_data = df[df.eventKey == pit_data["eventKey"]]
+    return {"message": "Data synced to the cloud!", "data_for": event_data["key"].tolist()}
