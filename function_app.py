@@ -133,8 +133,8 @@ def handle_match_data(data, container_name):
     container.upsert_item(match_data)
 
     # Indicate our successful save
-    event_data = df[df.eventKey == match_data["eventKey"]]
-    return {"message": "Data synced to the cloud!", "data_for": event_data["key"].tolist()}
+    #event_data = df[df.eventKey == match_data["eventKey"]]
+    return {"message": "Data synced to the cloud!", "debug":match_data}#"data_for": event_data["key"].tolist()}
 
 
 def handle_pit_data(data, container_name):
