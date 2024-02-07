@@ -203,4 +203,4 @@ def handle_pit_data(data, container_name):
 
     # Indicate our successful save
     event_data = df[df.eventKey == pit_data["eventKey"]]
-    return {"message": "Data synced to the cloud!", "data_for": event_data["key"].tolist()}
+    return {"message": "Data synced to the cloud!", "data_for": event_data["teamKey"].tolist()}
