@@ -31,6 +31,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     # Read in the data
     data = _get(req, "data")
     data_type = _get(req, "type").lower()
+    reset = _get(req, "reset")
 
     if not data_type:
         # Return a "helpful" message
@@ -54,7 +55,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
 
     # Here's the "Happy Path" for the app
     #
-    # We will read in the JSON data to a dicitionary.  We will save it as a
+    # We will read in the JSON data to a dictionary.  We will save it as a
     # raw json file.  We will also upsert the data into a CSV.  Both are
     # saved locally so they can be saved to blob storage.  Then the data is
     # prepped to save in a Cosmos DB.  We need to add in an id to make Cosmos
@@ -112,8 +113,10 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     existing_df = pd.read_csv(existing_csv_path)
     # Drop any existing data with the same key
     existing_df = existing_df[existing_df["key"] != data["key"]]
-    # Add the new data to the existing data (this is the upsert)
-    df = pd.concat([existing_df, df])
+    # Check if the data needs to be reset
+    if reset is None:
+        # Add the new data to the existing data (this is the upsert)
+        df = pd.concat([existing_df, df])
 
     # Save the CSV data locally
     logging.info("Saving CSV data locally.")
