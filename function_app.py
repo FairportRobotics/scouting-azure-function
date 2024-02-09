@@ -21,6 +21,28 @@ def _get(req, key):
     return data
 
 
+def _reset_the_data(game_name, container_client, blob_service_client, csv_name, existing_csv_path):
+    local_file_path = "/tmp/reset.csv"
+    logging.info("Reading existing data.")
+    with open(file=existing_csv_path, mode="wb") as download_file:
+        download_file.write(container_client.download_blob(csv_name).readall())
+    existing_df = pd.read_csv(existing_csv_path)
+    df = pd.DataFrame(columns=existing_df.columns)
+
+    # Save the CSV data locally
+    logging.info("Saving CSV data locally.")
+    df.to_csv(local_file_path, index=False)
+
+    # Transfer the local file to blob storage
+    logging.info("Saving CSV to blob storage.")
+    # Create a blob client using the local file name as the name for the blob
+    blob_client = blob_service_client.get_blob_client(
+        container=game_name, blob=csv_name
+    )
+    with open(file=local_file_path, mode="rb") as blob_data:
+        blob_client.upload_blob(blob_data, overwrite=True)
+
+
 @app.route(route="v1")
 def v1(req: func.HttpRequest) -> func.HttpResponse:
     # Assumes the containers have been created
@@ -31,6 +53,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     # Read in the data
     data = _get(req, "data")
     data_type = _get(req, "type").lower()
+    reset = _get(req, "reset")
 
     if not data_type:
         # Return a "helpful" message
@@ -41,7 +64,9 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         )
 
     if data_type in ["match", "pit"]:
-        if not data:
+        if reset is not None:
+            data = '{"key": "reset"}'
+        elif not data:
             # Return a different "helpful" message
             return func.HttpResponse(
                 json.dumps({"message": "Bummer!  No data sent to this endpoint."}),
@@ -54,7 +79,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
 
     # Here's the "Happy Path" for the app
     #
-    # We will read in the JSON data to a dicitionary.  We will save it as a
+    # We will read in the JSON data to a dictionary.  We will save it as a
     # raw json file.  We will also upsert the data into a CSV.  Both are
     # saved locally so they can be saved to blob storage.  Then the data is
     # prepped to save in a Cosmos DB.  We need to add in an id to make Cosmos
@@ -88,6 +113,20 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         conn_str=os.environ["BLOB_STORAGE_CONNECTION_STRING"]
     )
     container_client = blob_service_client.get_container_client(container=game_name)
+
+    if reset is not None:
+        _reset_the_data(
+            game_name,
+            container_client,
+            blob_service_client,
+            csv_name,
+            existing_csv_path,
+        )
+        return func.HttpResponse(
+            json.dumps({"message": data_type.title() + " Data Reset!", "data_for": []}),
+            mimetype="application/json",
+            status_code=200,
+        )
 
     # Save the raw JSON data
     logging.info("Saving raw JSON data locally.")
