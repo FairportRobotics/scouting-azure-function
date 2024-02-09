@@ -21,6 +21,28 @@ def _get(req, key):
     return data
 
 
+def _reset_the_data(game_name, container_client, blob_service_client, csv_name, existing_csv_path):
+    local_file_path = "/tmp/reset.csv"
+    logging.info("Reading existing data.")
+    with open(file=existing_csv_path, mode="wb") as download_file:
+        download_file.write(container_client.download_blob(csv_name).readall())
+    existing_df = pd.read_csv(existing_csv_path)
+    df = pd.DataFrame(columns=existing_df.columns)
+
+    # Save the CSV data locally
+    logging.info("Saving CSV data locally.")
+    df.to_csv(local_file_path, index=False)
+
+    # Transfer the local file to blob storage
+    logging.info("Saving CSV to blob storage.")
+    # Create a blob client using the local file name as the name for the blob
+    blob_client = blob_service_client.get_blob_client(
+        container=game_name, blob=csv_name
+    )
+    with open(file=local_file_path, mode="rb") as blob_data:
+        blob_client.upload_blob(blob_data, overwrite=True)
+
+
 @app.route(route="v1")
 def v1(req: func.HttpRequest) -> func.HttpResponse:
     # Assumes the containers have been created
@@ -90,6 +112,20 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     )
     container_client = blob_service_client.get_container_client(container=game_name)
 
+    if reset is not None:
+        _reset_the_data(
+            game_name,
+            container_client,
+            blob_service_client,
+            csv_name,
+            existing_csv_path,
+        )
+        return func.HttpResponse(
+            json.dumps({"message": data_type.title() + " Data Reset!", "data_for": []}),
+            mimetype="application/json",
+            status_code=200,
+        )
+
     # Save the raw JSON data
     logging.info("Saving raw JSON data locally.")
     with open(raw_json_path, "w") as f:
@@ -113,10 +149,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     existing_df = pd.read_csv(existing_csv_path)
     # Drop any existing data with the same key
     existing_df = existing_df[existing_df["key"] != data["key"]]
-    # Check if the data needs to be reset
-    if reset is None:
-        # Add the new data to the existing data (this is the upsert)
-        df = pd.concat([existing_df, df])
+    # Add the new data to the existing data (this is the upsert)
+    df = pd.concat([existing_df, df])
 
     # Save the CSV data locally
     logging.info("Saving CSV data locally.")
