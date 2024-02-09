@@ -64,14 +64,15 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         )
 
     if data_type in ["match", "pit"]:
-        if reset is None:
-            if not data:
-                # Return a different "helpful" message
-                return func.HttpResponse(
-                    json.dumps({"message": "Bummer!  No data sent to this endpoint."}),
-                    mimetype="application/json",
-                    status_code=200,
-                )
+        if reset is not None:
+            data = {"reset": reset}
+        elif not data:
+            # Return a different "helpful" message
+            return func.HttpResponse(
+                json.dumps({"message": "Bummer!  No data sent to this endpoint."}),
+                mimetype="application/json",
+                status_code=200,
+            )
     else:
         # Hmmm.  Don't know what type of data was sent
         return_data = {"message": "Error: Unknown data type sent to this endpoint!"}
