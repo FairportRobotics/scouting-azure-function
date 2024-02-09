@@ -65,7 +65,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
 
     if data_type in ["match", "pit"]:
         if reset is not None:
-            data = '{"reset": 1}'
+            data = '{"key": "reset"}'
         elif not data:
             # Return a different "helpful" message
             return func.HttpResponse(
