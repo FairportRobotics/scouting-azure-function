@@ -52,7 +52,9 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("Parsing data.")
     # Read in the data
     data = _get(req, "data")
-    data_type = _get(req, "type").lower()
+    data_type = _get(req, "type")
+    if isinstance(data_type, str):
+        data_type = data_type.lower()
     reset = _get(req, "reset")
 
     if not data_type:
@@ -74,11 +76,11 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                 status_code=200,
             )
         else:
-            logging.info(type(data))
-            logging.info(data)
-            data = str(data)
-            logging.info("HERE'S THE DATA")
-            logging.info(data)
+            #logging.info(type(data))
+            #logging.info(data)
+            data = str(json.dumps(data))
+            #logging.info("HERE'S THE DATA")
+            #logging.info(data)
     else:
         # Hmmm.  Don't know what type of data was sent
         return_data = {"message": "Error: Unknown data type sent to this endpoint!"}
