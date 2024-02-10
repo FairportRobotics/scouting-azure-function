@@ -91,9 +91,9 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     # indicate what data has been saved.
 
     # Read the JSON data into a dictionary
-    data = json.loads(
+    data = ast.literal_eval(json.loads(
         data
-    )  # We assume the JSON is flat.  If it's nested this will fail
+    ))  # We assume the JSON is flat.  If it's nested this will fail
 
     # Get settings based on what type of data was sent to the app
     if data_type == "match":
@@ -134,7 +134,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     # Save the raw JSON data
     logging.info("Saving raw JSON data locally.")
     with open(raw_json_path, "w") as f:
-        f.write(ast.literal_eval(json.dumps(data)))
+        f.write(json.dumps(data))
 
     # Save the raw JSON to blob storage
     logging.info("Saving the raw JSON to blob storage.")
