@@ -76,11 +76,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                 status_code=200,
             )
         else:
-            #logging.info(type(data))
-            #logging.info(data)
             data = str(json.dumps(data))
-            #logging.info("HERE'S THE DATA")
-            #logging.info(data)
     else:
         # Hmmm.  Don't know what type of data was sent
         return_data = {"message": "Error: Unknown data type sent to this endpoint!"}
