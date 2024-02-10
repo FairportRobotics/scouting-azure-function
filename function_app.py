@@ -5,7 +5,6 @@ import json
 import pandas as pd
 from azure.cosmos import CosmosClient
 import os
-import ast
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
@@ -91,9 +90,9 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     # indicate what data has been saved.
 
     # Read the JSON data into a dictionary
-    data = ast.literal_eval(json.loads(
+    data = json.loads(
         data
-    ))  # We assume the JSON is flat.  If it's nested this will fail
+    )  # We assume the JSON is flat.  If it's nested this will fail
 
     # Get settings based on what type of data was sent to the app
     if data_type == "match":
