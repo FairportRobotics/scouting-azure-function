@@ -22,12 +22,14 @@ def _get(req, key):
 
 
 def _reset_the_data(game_name, container_client, blob_service_client, csv_name, existing_csv_path):
+    # This will "reset" the data.  It creates the csv with only the column headers.
+    # Note: This does not reset the data in the cosmos database.
     local_file_path = "/tmp/reset.csv"
     logging.info("Reading existing data.")
     with open(file=existing_csv_path, mode="wb") as download_file:
         download_file.write(container_client.download_blob(csv_name).readall())
     existing_df = pd.read_csv(existing_csv_path)
-    df = pd.DataFrame(columns=existing_df.columns)
+    df = pd.DataFrame(columns=existing_df.columns) # This is where the magic happens
 
     # Save the CSV data locally
     logging.info("Saving CSV data locally.")
@@ -52,7 +54,9 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("Parsing data.")
     # Read in the data
     data = _get(req, "data")
-    data_type = _get(req, "type").lower()
+    data_type = _get(req, "type")
+    if isinstance(data_type, str):
+        data_type = data_type.lower()
     reset = _get(req, "reset")
 
     if not data_type:
@@ -73,6 +77,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                 mimetype="application/json",
                 status_code=200,
             )
+        else:
+            data = str(json.dumps(data))
     else:
         # Hmmm.  Don't know what type of data was sent
         return_data = {"message": "Error: Unknown data type sent to this endpoint!"}
