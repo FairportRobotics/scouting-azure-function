@@ -18,7 +18,7 @@ def _get(req, key):
             pass
         else:
             data = req_body.get(key)
-    return data
+    return str(data)
 
 
 def _reset_the_data(game_name, container_client, blob_service_client, csv_name, existing_csv_path):
@@ -89,7 +89,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
 
     # Read the JSON data into a dictionary
     data = json.loads(
-        str(data)
+        data
     )  # We assume the JSON is flat.  If it's nested this will fail
 
     # Get settings based on what type of data was sent to the app
