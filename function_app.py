@@ -75,6 +75,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
             )
         else:
             data = str(data)
+            logging.info("HERE'S THE DATA")
+            logging.info(data)
     else:
         # Hmmm.  Don't know what type of data was sent
         return_data = {"message": "Error: Unknown data type sent to this endpoint!"}
