@@ -89,7 +89,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
 
     # Read the JSON data into a dictionary
     data = json.loads(
-        data
+        str(data)
     )  # We assume the JSON is flat.  If it's nested this will fail
 
     # Get settings based on what type of data was sent to the app
