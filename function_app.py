@@ -74,6 +74,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                 status_code=200,
             )
         else:
+            logging.info(type(data))
+            logging.info(data)
             data = str(data)
             logging.info("HERE'S THE DATA")
             logging.info(data)
