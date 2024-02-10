@@ -18,7 +18,7 @@ def _get(req, key):
             pass
         else:
             data = req_body.get(key)
-    return str(data)
+    return data
 
 
 def _reset_the_data(game_name, container_client, blob_service_client, csv_name, existing_csv_path):
@@ -73,6 +73,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
                 mimetype="application/json",
                 status_code=200,
             )
+        else:
+            data = str(data)
     else:
         # Hmmm.  Don't know what type of data was sent
         return_data = {"message": "Error: Unknown data type sent to this endpoint!"}
