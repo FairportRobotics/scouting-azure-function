@@ -52,12 +52,16 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     existing_csv_path = "/tmp/existing.csv"
 
     logging.info("Parsing data.")
+
     # Read in the data
     data = _get(req, "data")
     data_type = _get(req, "type")
+
     if isinstance(data_type, str):
         data_type = data_type.lower()
+
     reset = _get(req, "reset")
+    refresh = _get(req, "refresh")
 
     if not data_type:
         # Return a "helpful" message
@@ -67,9 +71,11 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
             status_code=200,
         )
 
-    if data_type in ["match", "pit"]:
+    if data_type in ["match", "pit", "team", "assignment"]:
         if reset is not None:
             data = '{"key": "reset"}'
+        if refresh is not None:
+            data = '{"key": "refresh"}'
         elif not data:
             # Return a different "helpful" message
             return func.HttpResponse(
@@ -105,6 +111,13 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     elif data_type == "pit":
         csv_name = f"{game_name}_pit.csv"
         raw_json_blob_name = "pit_" + data["key"] + ".json"
+    elif data_type == "team":
+        csv_name = f"{game_name}_team.csv"
+        raw_json_blob_name = "team_" + data["key"] + ".json"
+    elif data_type == "assignment":
+        csv_name = f"{game_name}_assignment.csv"
+        raw_json_blob_name = "assignment_" + data["key"] + ".json"                
+
     # These settings are generalizable
     local_file_path = f"/tmp/{csv_name}"
     raw_json_path = f"/tmp/{raw_json_blob_name}"
