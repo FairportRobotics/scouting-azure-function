@@ -198,12 +198,13 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     # Insert into cosmos
     container.upsert_item(data)
 
-    # Indicate our successful save
+    # Return raw data or keys depending on type.
     if(data_type == "team" or data_type == "assignment"):
         return_data = df[df.eventKey == data["eventKey"]].tolist()
     else:
         return_data = df[df.eventKey == data["eventKey"]].tolist()
 
+    # Indicate our successful save
     return func.HttpResponse(
         json.dumps({"message": "Data synced to the cloud!", "data_for": return_data}),
         mimetype="application/json",
