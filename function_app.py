@@ -77,7 +77,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     if data_type in ["match", "pit", "team", "assignment"]:
         if reset is not None:
             data = '{"key": "reset"}'
-        if refresh is not None:
+        elif refresh is not None:
             data = '{"key": "refresh"}'
         elif not data:
             # Return a different "helpful" message
@@ -134,15 +134,6 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     raw_json_path = f"/tmp/{raw_json_blob_name}"
     cosmos_container = data_type
 
-    if refresh is not None:
-        df = _read_the_data(container_client, csv_name, existing_csv_path)
-        return_data = df["key"].tolist()
-        return func.HttpResponse(
-            json.dumps({"message": "Data synced to the cloud!", "data_for": return_data}),
-            mimetype="application/json",
-            status_code=200,
-        )
-
     # The Azure function app has the blob storage connection string saved as an
     # environmental variable.  We will use it to connect to blob storage.  We
     # assume that all data will be saved to a container matching the year's
@@ -153,6 +144,15 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     )
     container_client = blob_service_client.get_container_client(container=game_name)
 
+    if refresh is not None:
+        df = _read_the_data(container_client, csv_name, existing_csv_path)
+        return_data = df["key"].tolist()
+        return func.HttpResponse(
+            json.dumps({"message": "Here's some fresh data!", "data_for": return_data}),
+            mimetype="application/json",
+            status_code=200,
+        )
+    
     if reset is not None:
         _reset_the_data(
             game_name,
