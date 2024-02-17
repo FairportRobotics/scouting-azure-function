@@ -210,7 +210,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     if(data_type == "team" or data_type == "assignment"):
         return_data = df[df.eventKey == data["eventKey"]].tolist()
     else:
-        return_data = df[df.eventKey == data["eventKey"]].tolist()
+        return_data = df[df.eventKey == data["eventKey"]]["key"].tolist()
 
     # Indicate our successful save
     return func.HttpResponse(
