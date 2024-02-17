@@ -66,6 +66,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     reset = _get(req, "reset")
     refresh = _get(req, "refresh")
 
+    logging.info(f"Here's the data parsed: type={data_type}; reset={reset}; refresh={refresh}; data={data}")
+
     if not data_type:
         # Return a "helpful" message
         return func.HttpResponse(
@@ -220,8 +222,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
 
     # Reset all data. 
     if reset is not None:
-        container.delete_all_items_by_partition_key("2023nyrr")
-        container.delete_all_items_by_partition_key("2024paca")
+        logging.info("Delete all data by partition key in the Cosmos db.")
+        container.delete_all_items_by_partition_key(data["eventKey"])
 
     # Return raw data or keys depending on type.
     #if(data_type == "team" or data_type == "assignment"):
