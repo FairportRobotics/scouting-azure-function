@@ -206,9 +206,14 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     # Insert into cosmos
     container.upsert_item(data)
 
+    # Reset all data. 
+    if reset is not None:
+        container.delete_all_items_by_partition_key("2023nyrr")
+        container.delete_all_items_by_partition_key("2024paca")
+
     # Return raw data or keys depending on type.
     if(data_type == "team" or data_type == "assignment"):
-        return_data = df[df.eventKey == data["eventKey"]].tolist()
+        return_data = df[df.eventKey == data["eventKey"]].to_json()
     else:
         return_data = df[df.eventKey == data["eventKey"]]["key"].tolist()
 
