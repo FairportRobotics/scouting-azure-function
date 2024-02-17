@@ -98,6 +98,14 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         data
     )  # We assume the JSON is flat.  If it's nested this will fail
 
+    # Check to make sure the key is in the data
+    if "key" not in data:
+        return func.HttpResponse(
+            json.dumps({"message": "What!  Your data does not have a key.  That's not good!"}),
+            mimetype="application/json",
+            status_code=200,
+        )
+
     # Get settings based on what type of data was sent to the app
     if data_type == "match":
         csv_name = f"{game_name}.csv"
