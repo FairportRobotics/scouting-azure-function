@@ -220,7 +220,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     else:
         # Reset all data. 
         logging.info("Delete all data by partition key in the Cosmos db.")
-        container.delete_all_items_by_partition_key(data["eventKey"])
+        container.delete_all_items_by_partition_key("2023nyrr")
+        container.delete_all_items_by_partition_key("2024paca")
         return func.HttpResponse(
             json.dumps({"message": data_type.title() + " Data Reset!", "data_for": []}),
             mimetype="application/json",
