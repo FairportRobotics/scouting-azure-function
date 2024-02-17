@@ -21,17 +21,20 @@ def _get(req, key):
     return data
 
 
-def _reset_the_data(game_name, container_client, blob_service_client, csv_name, existing_csv_path):
-    # This will "reset" the data.  It creates the csv with only the column headers.
-    # Note: This does not reset the data in the cosmos database.
-    local_file_path = "/tmp/reset.csv"
+def _read_the_data(container_client, csv_name, existing_csv_path):
     logging.info("Reading existing data.")
     with open(file=existing_csv_path, mode="wb") as download_file:
         download_file.write(container_client.download_blob(csv_name).readall())
-    existing_df = pd.read_csv(existing_csv_path)
+    return pd.read_csv(existing_csv_path)
+
+def _reset_the_data(game_name, container_client, blob_service_client, csv_name, existing_csv_path):
+    # This will "reset" the data.  It creates the csv with only the column headers.
+    # Note: This does not reset the data in the cosmos database.
+    existing_df = _read_the_data(container_client, csv_name, existing_csv_path)
     df = pd.DataFrame(columns=existing_df.columns) # This is where the magic happens
 
     # Save the CSV data locally
+    local_file_path = "/tmp/reset.csv"
     logging.info("Saving CSV data locally.")
     df.to_csv(local_file_path, index=False)
 
@@ -131,6 +134,15 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     raw_json_path = f"/tmp/{raw_json_blob_name}"
     cosmos_container = data_type
 
+    if refresh is not None:
+        df = _read_the_data(container_client, csv_name, existing_csv_path)
+        return_data = df["key"].tolist()
+        return func.HttpResponse(
+            json.dumps({"message": "Data synced to the cloud!", "data_for": return_data}),
+            mimetype="application/json",
+            status_code=200,
+        )
+
     # The Azure function app has the blob storage connection string saved as an
     # environmental variable.  We will use it to connect to blob storage.  We
     # assume that all data will be saved to a container matching the year's
@@ -212,8 +224,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         container.delete_all_items_by_partition_key("2024paca")
 
     # Return raw data or keys depending on type.
-    if(data_type == "team" or data_type == "assignment"):
-        return_data = df[df.eventKey == data["eventKey"]].to_json()
+    #if(data_type == "team" or data_type == "assignment"):
+    #    return_data = df[df.eventKey == data["eventKey"]].to_json()
     else:
         return_data = df[df.eventKey == data["eventKey"]]["key"].tolist()
 
