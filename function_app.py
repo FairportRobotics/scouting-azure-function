@@ -163,73 +163,71 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
             csv_name,
             existing_csv_path,
         )
+    else:
+
+        # Save the raw JSON data
+        logging.info("Saving raw JSON data locally.")
+        with open(raw_json_path, "w") as f:
+            f.write(json.dumps(data))
+
+        # Save the raw JSON to blob storage
+        logging.info("Saving the raw JSON to blob storage.")
+        blob_client = blob_service_client.get_blob_client(
+            container="raw", blob=raw_json_blob_name
+        )
+        with open(file=raw_json_path, mode="rb") as blob_data:
+            blob_client.upload_blob(blob_data, overwrite=True)
+
+        # Create a data frame for this reccord to upsert into the CSV
+        df = pd.DataFrame([data])
+        # TODO: Check if the existing data exists in the blob storage
+        # Read in the existing data
+        logging.info("Reading existing data.")
+        with open(file=existing_csv_path, mode="wb") as download_file:
+            download_file.write(container_client.download_blob(csv_name).readall())
+        existing_df = pd.read_csv(existing_csv_path)
+        # Drop any existing data with the same key
+        existing_df = existing_df[existing_df["key"] != data["key"]]
+        # Add the new data to the existing data (this is the upsert)
+        df = pd.concat([existing_df, df])
+
+        # Save the CSV data locally
+        logging.info("Saving CSV data locally.")
+        df.to_csv(local_file_path, index=False)
+
+        # Transfer the local file to blob storage
+        logging.info("Saving CSV to blob storage.")
+        # Create a blob client using the local file name as the name for the blob
+        blob_client = blob_service_client.get_blob_client(
+            container=game_name, blob=csv_name
+        )
+        with open(file=local_file_path, mode="rb") as blob_data:
+            blob_client.upload_blob(blob_data, overwrite=True)
+
+    cosmos_client = CosmosClient(
+        os.environ["COSMOS_URI"], credential=os.environ["COSMOS_KEY"]
+    )
+    cosmos_database = cosmos_client.get_database_client(database=game_name)
+    container = cosmos_database.get_container_client(cosmos_container)
+
+    if reset is None:
+        # Save to Cosmos db
+        logging.info("Upsert into Cosmos db.")
+        # Add an id to the dictionary to make Cosmos happy
+        data["id"] = data["key"]
+        # Insert into cosmos
+        container.upsert_item(data)
+    else:
+        # Reset all data. 
+        logging.info("Delete all data by partition key in the Cosmos db.")
+        container.delete_all_items_by_partition_key(data["eventKey"])
         return func.HttpResponse(
             json.dumps({"message": data_type.title() + " Data Reset!", "data_for": []}),
             mimetype="application/json",
             status_code=200,
         )
 
-    # Save the raw JSON data
-    logging.info("Saving raw JSON data locally.")
-    with open(raw_json_path, "w") as f:
-        f.write(json.dumps(data))
-
-    # Save the raw JSON to blob storage
-    logging.info("Saving the raw JSON to blob storage.")
-    blob_client = blob_service_client.get_blob_client(
-        container="raw", blob=raw_json_blob_name
-    )
-    with open(file=raw_json_path, mode="rb") as blob_data:
-        blob_client.upload_blob(blob_data, overwrite=True)
-
-    # Create a data frame for this reccord to upsert into the CSV
-    df = pd.DataFrame([data])
-    # TODO: Check if the existing data exists in the blob storage
-    # Read in the existing data
-    logging.info("Reading existing data.")
-    with open(file=existing_csv_path, mode="wb") as download_file:
-        download_file.write(container_client.download_blob(csv_name).readall())
-    existing_df = pd.read_csv(existing_csv_path)
-    # Drop any existing data with the same key
-    existing_df = existing_df[existing_df["key"] != data["key"]]
-    # Add the new data to the existing data (this is the upsert)
-    df = pd.concat([existing_df, df])
-
-    # Save the CSV data locally
-    logging.info("Saving CSV data locally.")
-    df.to_csv(local_file_path, index=False)
-
-    # Transfer the local file to blob storage
-    logging.info("Saving CSV to blob storage.")
-    # Create a blob client using the local file name as the name for the blob
-    blob_client = blob_service_client.get_blob_client(
-        container=game_name, blob=csv_name
-    )
-    with open(file=local_file_path, mode="rb") as blob_data:
-        blob_client.upload_blob(blob_data, overwrite=True)
-
-    # Save to Cosmos db
-    logging.info("Upsert into Cosmos db.")
-    # Add an id to the dictionary to make Cosmos happy
-    data["id"] = data["key"]
-    cosmos_client = CosmosClient(
-        os.environ["COSMOS_URI"], credential=os.environ["COSMOS_KEY"]
-    )
-    cosmos_database = cosmos_client.get_database_client(database=game_name)
-    container = cosmos_database.get_container_client(cosmos_container)
-    # Insert into cosmos
-    container.upsert_item(data)
-
-    # Reset all data. 
-    if reset is not None:
-        logging.info("Delete all data by partition key in the Cosmos db.")
-        container.delete_all_items_by_partition_key(data["eventKey"])
-
-    # Return raw data or keys depending on type.
-    #if(data_type == "team" or data_type == "assignment"):
-    #    return_data = df[df.eventKey == data["eventKey"]].to_json()
-    else:
-        return_data = df[df.eventKey == data["eventKey"]]["key"].tolist()
+    return_data = df[df.eventKey == data["eventKey"]]["key"].tolist()
 
     # Indicate our successful save
     return func.HttpResponse(
