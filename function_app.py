@@ -46,6 +46,7 @@ def _reset_the_data(game_name, container_client, blob_service_client, csv_name, 
     )
     with open(file=local_file_path, mode="rb") as blob_data:
         blob_client.upload_blob(blob_data, overwrite=True)
+    return existing_df["key"].to_list()
 
 
 @app.route(route="v1")
@@ -156,7 +157,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         )
     
     if reset is not None:
-        _reset_the_data(
+        keys_to_delete = _reset_the_data(
             game_name,
             container_client,
             blob_service_client,
@@ -219,8 +220,9 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         container.upsert_item(data)
     else:
         # Reset all data. 
-        #logging.info("Delete all data by partition key in the Cosmos db.")
-        #container.delete_item()
+        logging.info("Delete all data by partition key in the Cosmos db.")
+        for key in keys_to_delete:
+            container.delete_item(item=key)
         #container.delete_all_items_by_partition_key("2023nyrr")
         #container.delete_all_items_by_partition_key("2024paca")
         return func.HttpResponse(
