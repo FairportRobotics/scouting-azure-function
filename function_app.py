@@ -221,7 +221,7 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
     else:
         # Reset all data. 
         n = len(keys_to_delete)
-        logging.info("Deleting {n} records in the Cosmos db.")
+        logging.info(f"Deleting {n} records in the Cosmos db.")
         for key in keys_to_delete:
             container.delete_item(item=key)
         #container.delete_all_items_by_partition_key("2023nyrr")
