@@ -220,7 +220,8 @@ def v1(req: func.HttpRequest) -> func.HttpResponse:
         container.upsert_item(data)
     else:
         # Reset all data. 
-        logging.info("Delete all data by partition key in the Cosmos db.")
+        n = len(keys_to_delete)
+        logging.info("Deleting {n} records in the Cosmos db.")
         for key in keys_to_delete:
             container.delete_item(item=key)
         #container.delete_all_items_by_partition_key("2023nyrr")
